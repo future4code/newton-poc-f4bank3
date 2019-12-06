@@ -1,5 +1,5 @@
-type transactions = {
+type Transactions = {
     value: number,
-    date: string,
+    date: Date,
     description: string,
 }
