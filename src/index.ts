@@ -15,44 +15,105 @@ type Transactions = {
     description: string,
 }
 
-const args = process.argv.slice(2)
-const action = args[0]
-const userParam = args.slice(1)
+const args = process.argv.slice(2);
+const action = args[0];
+const userParam = args.slice(1);
 
+switch (action) {
+    case "new":
+        if (userParam.length === 3) {
+            const object = treatUserAccountObj(userParam);
+            createAccount(object);
+        }
+        else {
+            console.log(`Número de parâmetros incorreto. Exemplo: "Nome" "CPF" "Data de nascimento: 31/12/2010"`)
+        }
+        break;
+    case "showAll":
+        const promise = getAllAccounts();
+        promise.then((resolve) => { console.log(resolve) });
+        break;
+    case "balance":
+        getBalance(userParam);
+        break;
+    case "add":
+        addBalance(userParam);
+        break;
+    default:
+        console.log("Comando inválido");
+        break;
+}
 // TO DO MELHORAR A TIPAGEM DA FUNÇÃO
+function writeFileBank(array: string[]) {
+    return new Promise((resolve, reject) => {
+        writeFile('userData.json', JSON.stringify(array), "utf-8", (err) => {
+            if (err) reject(err);
+            resolve();
+        });
+    });
+}
 async function createAccount(account: UserAccount) {
+    if (Number(account.birthDate.format("YYYY")) <= 2001) {
 
-    const allAccounts = await getAllAccounts()
+        const allAccounts = await getAllAccounts();
+        const filterAccount = allAccounts.filter((acc) => { return acc.cpf === account.cpf });
 
-    const filterAccount = allAccounts.filter((acc) => { return acc.cpf === account.cpf });
+        if (filterAccount.length === 0) {
+            allAccounts.push(account);
+            try {
+                await writeFileBank(allAccounts);
+                console.log("Conta criada com sucesso!")
+            }
+            catch (err) {
+                console.log(err)
+            }
 
-    if (filterAccount.length === 0) {
-        allAccounts.push(account)
 
-        const promise = new Promise((resolve, reject) => {
-            writeFile('userData.json', JSON.stringify(allAccounts), "utf-8", (err) => {
-                if (err) reject(err);
-                resolve("A conta foi criada com sucesso!")
-            });
-        });
-        promise.then((resolve) => {
-            console.log(resolve)
-        }, (reject) => {
-            console.log(reject)
-        });
-
-    } else {
-        console.log("CPF já existe")
+        } else {
+            console.log("CPF já existe")
+        }
     }
-
-    const userAge = allAccounts.filter((acb) => { return acb.birthDate === account.birthDate});
-
-    if (userAge >= 18){
-        console.log("Você é maior de idade, portanto, poderá ter a sua conta criada!");
-    } else {
+    else {
         console.log("Você não é maior de idade, portanto, não poderá ter a sua conta criada!");
     }
-        
+
+}
+
+async function getBalance(userParam: string[]) {
+    const name = userParam[0];
+    const cpf = userParam[1];
+
+    const allAccounts = await getAllAccounts();
+    const filterAccount = allAccounts.filter((acc) => { return acc.cpf === cpf && acc.name === name });
+    if (filterAccount.length > 0) {
+        console.log('\x1b[33m%s\x1b[0m', `Saldo: R$ ${filterAccount[0].balance},00`)
+    }
+    else {
+        console.log('\x1b[31m%s\x1b[0m', "Não encontramos sua conta.")
+    }
+}
+
+async function addBalance(userParam: string[]) {
+    const name = userParam[0];
+    const cpf = userParam[1];
+    const value = parseInt(userParam[2]);
+
+    const allAccounts = await getAllAccounts();
+    const updatedAllAccounts = allAccounts.map(acc => {
+        if (acc.name === name && acc.cpf == cpf) {
+            return { ...acc, balance: parseInt(acc.balance) + value }
+        }
+        else {
+            return acc
+        }
+    });
+    try {
+        await writeFileBank(updatedAllAccounts);
+        console.log("Seu saldo foi atualizado com sucesso!");
+    }
+    catch (err) {
+        console.log('\x1b[31m%s\x1b[0m', "Não encontramos sua conta.");
+    }
 }
 
 function getAllAccounts() {
@@ -69,27 +130,6 @@ function getAllAccounts() {
     });
 }
 
-// function getBalance() {
-//     Receber um nome
-//     Receber um cpf
-
-//     if (nomeRecebido === nomeDosistema && cpfRecebido === cpfDoSistema) {
-//         const promise = new Promise((resolve, reject) => {
-//             readFile('userData.json', 'utf8', (err: Error, data: string) => {
-//                 if (err) {
-//                     console.error("Não foi possível encontrar o usuário");
-//                     reject(err);
-//                 }
-//                 else {
-//                     // return Saldo da Conta
-//                 }
-//             });
-//         })
-//     } else {
-//         console.log("Cpf ou nome não esta cadastrado") 
-// }
-// }
-
 function treatUserAccountObj(param: string[]): UserAccount {
     const object: UserAccount = {
         name: param[0],
@@ -100,8 +140,6 @@ function treatUserAccountObj(param: string[]): UserAccount {
     return object
 }
 
-const object = treatUserAccountObj(userParam)
 
-createAccount(object)
 
 
