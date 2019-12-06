@@ -60,6 +60,27 @@ function getAllAccounts() {
     });
 }
 
+// function getBalance() {
+//     Receber um nome
+//     Receber um cpf
+
+//     if (nomeRecebido === nomeDosistema && cpfRecebido === cpfDoSistema) {
+//         const promise = new Promise((resolve, reject) => {
+//             readFile('userData.json', 'utf8', (err: Error, data: string) => {
+//                 if (err) {
+//                     console.error("Não foi possível encontrar o usuário");
+//                     reject(err);
+//                 }
+//                 else {
+//                     // return Saldo da Conta
+//                 }
+//             });
+//         })
+//     } else {
+//         console.log("Cpf ou nome não esta cadastrado") 
+// }
+// }
+
 function treatUserAccountObj(param: string[]): UserAccount {
     const object: UserAccount = {
         name: param[0],
