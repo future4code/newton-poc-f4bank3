@@ -12,13 +12,13 @@
         
 ## Adicionar valor na conta:
 
-  -Para adicionar um valor no saldo da conta:
+  - Para adicionar um valor no saldo da conta:
       - npm run f4bank add "Nome" "CPF" 50
       
 ## Vê o saldo:
 
   - Para vê o saldo da conta:
-      -npm run f4bank balance "Nome" "CPF"
+      - npm run f4bank balance "Nome" "CPF"
   
           
       
