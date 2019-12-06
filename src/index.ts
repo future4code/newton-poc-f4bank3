@@ -45,7 +45,7 @@ async function createAccount(account: UserAccount) {
         console.log("CPF já existe")
     }
 
-    const userAge = allAccounts.filter((acb) => { return aca.birthDate === account.birthDate});
+    const userAge = allAccounts.filter((acb) => { return acb.birthDate === account.birthDate});
 
     if (userAge >= 18){
         console.log("Você é maior de idade, portanto, poderá ter a sua conta criada!");
