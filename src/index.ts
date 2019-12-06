@@ -1,6 +1,5 @@
 import * as moment from "moment";
-import { writeFile } from "fs"
-
+import { writeFile, readFile } from "fs"
 
 type UserAccount = {
     name: string,
@@ -21,34 +20,58 @@ const action = args[0]
 const userParam = args.slice(1)
 
 // TO DO MELHORAR A TIPAGEM DA FUNÇÃO
-function createAccount(account: UserAccount) {
-    const accountJson = JSON.stringify(account);
-    console.log(accountJson)
-    const promise = new Promise((resolve, reject) => {
-        writeFile('userData.json', accountJson, "utf-8", (err) => {
-            if (err) reject (err);
-            resolve("A conta foi criada com sucesso!")
-          });    
-    }); 
+async function createAccount(account: UserAccount) {
+
+    const allAccounts = await getAllAccounts()
+
+    const filterAccount = allAccounts.filter((acc) => { return acc.cpf === account.cpf });
+
+    if (filterAccount.length === 0) {
+        allAccounts.push(account)
+
+        const promise = new Promise((resolve, reject) => {
+            writeFile('userData.json', JSON.stringify(allAccounts), "utf-8", (err) => {
+                if (err) reject(err);
+                resolve("A conta foi criada com sucesso!")
+            });
+        });
         promise.then((resolve) => {
             console.log(resolve)
-        },(reject) => {
+        }, (reject) => {
             console.log(reject)
         });
-} 
 
-function treatUserAccountObj(param: string[]):UserAccount {
-    const object:UserAccount = {
+    } else {
+        console.log("CPF já existe")
+    }
+}
+
+function getAllAccounts() {
+    return new Promise<Array<any>>((resolve, reject) => {
+        readFile('userData.json', 'utf8', (err: Error, data: string) => {
+            if (err) {
+                console.error("Não foi possível encontrar o arquivo.");
+                reject(err);
+            }
+            else {
+                resolve(JSON.parse(data));
+            }
+        });
+    });
+}
+
+function treatUserAccountObj(param: string[]): UserAccount {
+    const object: UserAccount = {
         name: param[0],
         cpf: param[1],
-        birthDate: moment(param[2]),
+        birthDate: moment(param[2], "DD/MM/YYYY"),
         balance: 0,
     }
     return object
 }
 
-const newObj = treatUserAccountObj(userParam)
+const object = treatUserAccountObj(userParam)
 
+createAccount(object)
 
-createAccount(newObj)
 
