@@ -1,5 +1,7 @@
-type account = {
+type Account = {
     name: string,
     cpf: number,
-    birth: Date
+    birth: date,
+    balance: number,
+    extract: number
 }
